@@ -88,6 +88,11 @@ struct SharedState<T> {
     available: Condvar,
 }
 
+/// We back the channel with a `VecDeque`, since it helps us avoid shifting content with every pop.
+/// Alternatively, we could also use a linked list, so we could shift pointers and avoid array resizing.
+/// If we wanted to avoid locking entirely, we could use an atomic blocked linked list.
+///     This is essentially a linked list of atomic `VecDeque<T>`
+///     This would lower the amount of times we need to atomically update the head/tail of the linked list
 struct Inner<T> {
     queue: VecDeque<T>,
     senders: usize,
